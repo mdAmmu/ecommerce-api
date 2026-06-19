@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 
+from app.core.config import settings
+
 app = FastAPI(
-    title="Ecommerce API",
+    title=settings.APP_NAME,
     description="Backend API for the ecommerce platform",
     version="1.0.0"
 )
