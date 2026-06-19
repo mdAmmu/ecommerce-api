@@ -4,7 +4,11 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.database import get_db
 from app.core.security import decode_token
+<<<<<<< HEAD
 from app.repositories import user_repository, token_blocklist_repository
+=======
+from app.repositories import user_repository
+>>>>>>> feature/get-profile
 from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -28,12 +32,15 @@ def get_current_user(
             detail="Invalid token type"
         )
 
+<<<<<<< HEAD
     if token_blocklist_repository.is_token_blocked(db, payload["jti"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has been revoked"
         )
 
+=======
+>>>>>>> feature/get-profile
     user = user_repository.get_by_email(db, payload["email"])
     if not user:
         raise HTTPException(
