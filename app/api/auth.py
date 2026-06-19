@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.dependencies.database import get_db
-from app.schemas.user import UserRegister, UserResponse,TokenResponse,UserLogin
+from app.schemas.user import UserRegister, UserResponse, TokenResponse, UserLogin, RefreshRequest, RefreshResponse
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -22,3 +22,6 @@ def login(data: UserLogin,  db: Session = Depends(get_db)):
     return auth_service.login_user(db, data)
 
 
+@router.post("/refresh", response_model=RefreshResponse, status_code=status.HTTP_200_OK)
+def refresh(data: RefreshRequest):
+    return auth_service.refresh_access_token(data.refresh_token)

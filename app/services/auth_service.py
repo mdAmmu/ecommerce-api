@@ -5,7 +5,7 @@ import bcrypt
 from app.models.user import User
 from app.schemas.user import UserRegister, UserLogin
 from app.repositories import user_repository
-from app.core.security import verify_password, create_token
+from app.core.security import verify_password, create_token, decode_token
 from app.core.config import settings
 
 
@@ -48,11 +48,35 @@ def login_user(db: Session, data: UserLogin) -> dict:
 
     token_data = {"user_id": user.id, "email": user.email, "role": user.role}
 
-    access_token = create_token(token_data, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token = create_token(token_data, settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60)
+    access_token = create_token(token_data, settings.ACCESS_TOKEN_EXPIRE_MINUTES, "access")
+    refresh_token = create_token(token_data, settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60, "refresh")
 
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
+
+
+def refresh_access_token(refresh_token: str) -> dict:
+    try:
+        payload = decode_token(refresh_token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e)
+        )
+
+    if payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type"
+        )
+
+    token_data = {"user_id": payload["user_id"], "email": payload["email"], "role": payload["role"]}
+    new_access_token = create_token(token_data, settings.ACCESS_TOKEN_EXPIRE_MINUTES, "access")
+
+    return {
+        "access_token": new_access_token,
         "token_type": "bearer"
     }
