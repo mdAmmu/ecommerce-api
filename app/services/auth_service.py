@@ -3,8 +3,10 @@ from sqlalchemy.orm import Session
 import bcrypt
 
 from app.models.user import User
-from app.schemas.user import UserRegister
+from app.schemas.user import UserRegister, UserLogin
 from app.repositories import user_repository
+from app.core.security import verify_password, create_token
+from app.core.config import settings
 
 
 def register_user(db: Session, data: UserRegister) -> User:
@@ -34,3 +36,23 @@ def get_user(db: Session, email: str) -> User:
             detail="User not found"
         )
     return user_detail
+
+
+def login_user(db: Session, data: UserLogin) -> dict:
+    user = user_repository.get_by_email(db, data.email)
+    if not user or not verify_password(data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    token_data = {"user_id": user.id, "email": user.email, "role": user.role}
+
+    access_token = create_token(token_data, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_token(token_data, settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
