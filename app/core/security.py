@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import uuid
 
 import bcrypt
 import jwt
@@ -23,5 +24,6 @@ def decode_token(token: str) -> dict:
 def create_token(data: dict, expires_in_minutes: int, token_type: str = "access") -> str:
     to_encode = data.copy()
     to_encode["type"] = token_type
+    to_encode["jti"] = str(uuid.uuid4())
     to_encode["exp"] = datetime.now(timezone.utc) + timedelta(minutes=expires_in_minutes)
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)

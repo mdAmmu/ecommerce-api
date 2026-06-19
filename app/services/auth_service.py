@@ -4,7 +4,8 @@ import bcrypt
 
 from app.models.user import User
 from app.schemas.user import UserRegister, UserLogin
-from app.repositories import user_repository
+from datetime import datetime, timezone
+from app.repositories import user_repository, token_blocklist_repository
 from app.core.security import verify_password, create_token, decode_token
 from app.core.config import settings
 
@@ -80,3 +81,16 @@ def refresh_access_token(refresh_token: str) -> dict:
         "access_token": new_access_token,
         "token_type": "bearer"
     }
+
+
+def logout_user(db: Session, token: str) -> None:
+    try:
+        payload = decode_token(token)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+
+    expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+    token_blocklist_repository.add_to_blocklist(db, payload["jti"], expires_at)
