@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.session import engine
 from app.dependencies.database import get_db
+from app.api.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -32,6 +33,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+
+app.include_router(auth_router)
 
 
 @app.get("/health")
