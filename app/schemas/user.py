@@ -1,12 +1,32 @@
 from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 class UserRegister(BaseModel):
     email: EmailStr
     password: str
     full_name: str
+
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    password: Optional[str] = None
+
+    @field_validator("full_name")
+    @classmethod
+    def full_name_not_empty(cls, v: str | None) -> str | None:
+        if v is not None and v.strip() == "":
+            raise ValueError("full_name cannot be empty")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def password_not_empty(cls, v: str | None) -> str | None:
+        if v is not None and v.strip() == "":
+            raise ValueError("password cannot be empty")
+        return v
 
 class UserGet(BaseModel):
     email: EmailStr
