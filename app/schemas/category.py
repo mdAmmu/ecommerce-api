@@ -32,3 +32,9 @@ class GetCategoryRequest(BaseModel):
 
 class GetCategoryResponse(BaseModel):
     categories: list
+
+class DeleteCategoryRequest(BaseModel):
+    id: int
+
+class DeleteCategoryResponse(BaseModel):
+    message : str

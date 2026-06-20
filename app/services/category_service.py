@@ -44,3 +44,23 @@ def update_category(db: Session, data: UpdateCategoryRequest):
 
 def get_all_categories(db: Session):
     return category_repository.get_all(db)
+
+
+def delete_category(db: Session, id: int):
+    category = category_repository.get_by_id(db, id)
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found"
+        )
+
+    if category_repository.has_active_products(db, id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete category with active products"
+        )
+
+    category_repository.soft_delete(db, category)
+    return {"message": "Category deleted successfully"}
+
+    

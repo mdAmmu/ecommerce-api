@@ -8,6 +8,7 @@ from app.schemas.category import (
     CategoryResponse,
     UpdateCategoryRequest,
     UpdateCategoryResponse,
+    DeleteCategoryResponse,
 )
 from app.services import category_service
 
@@ -55,6 +56,22 @@ def get_all_category(
         )
 
     return category_service.get_all_categories(db)
+
+
+
+@router.delete("/{id}", response_model=DeleteCategoryResponse)
+def delete_category(
+    id: int,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    return category_service.delete_category(db, id)
 
 
 

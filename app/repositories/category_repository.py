@@ -9,7 +9,7 @@ def get_by_name(db: Session, name: str) -> Category | None:
     return db.execute(statement).scalars().first()
 
 def get_by_id(db: Session, id: int) -> Category | None:
-    statement = select(Category).where(Category.id == id)
+    statement = select(Category).where(Category.id == id, Category.is_active == True)
     return db.execute(statement).scalars().first()
 
 def create(db: Session, category: Category) -> Category:
@@ -26,13 +26,16 @@ def update(db: Session, category: Category, updates: dict) -> Category:
     db.refresh(category)
     return category
 
-def delete(db: Session, id: int) -> None:
-    category = get_by_id(db, id)
-    if category:
-        db.delete(category)
-        db.commit()
+def soft_delete(db: Session, category: Category) -> None:
+    category.is_active = False
+    db.commit()
+
+
+def has_active_products(db: Session, category_id: int) -> bool:
+    return False
+
 
 def get_all(db: Session):
-    statement = select(Category)
+    statement = select(Category).where(Category.is_active == True)
     return db.execute(statement).scalars().all()
 
