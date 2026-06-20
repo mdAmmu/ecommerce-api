@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.dependencies.database import get_db
-from app.dependencies.auth import get_current_user, oauth2_scheme
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.dependencies.auth import get_current_user, security_scheme
 from app.schemas.user import UserRegister, UserResponse, TokenResponse, UserLogin, RefreshRequest, RefreshResponse
 from app.models.user import User
 from app.services import auth_service
@@ -32,8 +33,8 @@ def refresh(data: RefreshRequest):
 @router.post("/logout", status_code=status.HTTP_200_OK)
 def logout(
     current_user: User = Depends(get_current_user),
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
     db: Session = Depends(get_db)
 ):
-    auth_service.logout_user(db, token)
+    auth_service.logout_user(db, credentials.credentials)
     return {"message": "Successfully logged out"}
