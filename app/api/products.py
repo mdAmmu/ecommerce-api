@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
-from app.schemas.product import ProductCreate, ProductResponse
+from app.schemas.product import ProductCreate, ProductResponse, PaginatedProductResponse
 from app.services import product_service
 
 router = APIRouter(prefix="/products", tags=["Products"])
@@ -22,3 +22,25 @@ def create_product(
         )
 
     return product_service.create_product(db, data)
+
+@router.get("/", response_model=PaginatedProductResponse)
+def get_all_products(
+    page: int = 1,
+    limit: int = 20,
+    category_id: int | None = None,
+    min_price: float | None = None,
+    max_price: float | None = None,
+    search: str | None = None,
+    sort_by: str | None = None,
+    db: Session = Depends(get_db),
+):
+    return product_service.get_all_products(
+        db,
+        page=page,
+        limit=limit,
+        category_id=category_id,
+        min_price=min_price,
+        max_price=max_price,
+        search=search,
+        sort_by=sort_by,
+    )

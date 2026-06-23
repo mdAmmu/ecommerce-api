@@ -41,3 +41,64 @@ def create_product(db: Session, data: ProductCreate):
         "created_at": new_product.created_at,
         "updated_at": new_product.updated_at,
     }
+
+def get_all_products(
+    db: Session,
+    page: int,
+    limit: int,
+    category_id: int | None = None,
+    min_price: float | None = None,
+    max_price: float | None = None,
+    search: str | None = None,
+    sort_by: str | None = None,
+):
+    if page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Page must be at least 1"
+        )
+
+    if limit < 1 or limit > 100:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Limit must be between 1 and 100"
+        )
+
+    products, total = product_repository.get_all_filtered(
+        db,
+        page=page,
+        limit=limit,
+        category_id=category_id,
+        min_price=min_price,
+        max_price=max_price,
+        search=search,
+        sort_by=sort_by,
+    )
+
+    import math
+    total_pages = math.ceil(total / limit) if total > 0 else 0
+
+    product_list = []
+    for product in products:
+        category = category_repository.get_by_id(db, product.category_id)
+        inventory = inventory_repository.get_by_product_id(db, product.id)
+
+        product_list.append({
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "category_id": product.category_id,
+            "category_name": category.name if category else "Unknown",
+            "stock_quantity": inventory.stock_quantity if inventory else 0,
+            "is_active": product.is_active,
+            "created_at": product.created_at,
+            "updated_at": product.updated_at,
+        })
+
+    return {
+        "products": product_list,
+        "total": total,
+        "page": page,
+        "total_pages": total_pages,
+    }

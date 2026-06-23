@@ -24,3 +24,9 @@ class ProductResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class PaginatedProductResponse(BaseModel):
+    products: list[ProductResponse]
+    total: int
+    page: int
+    total_pages: int
+

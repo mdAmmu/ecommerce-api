@@ -8,3 +8,8 @@ def create(db: Session, inventory: Inventory) -> Inventory:
     db.commit()
     db.refresh(inventory)
     return inventory
+
+
+def get_by_product_id(db: Session, product_id: int) -> Inventory | None:
+    statement = select(Inventory).where(Inventory.product_id == product_id)
+    return db.execute(statement).scalars().first()
