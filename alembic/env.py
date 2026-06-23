@@ -20,6 +20,8 @@ from app.models.token_blocklist import TokenBlocklist
 from app.models.category import Category
 from app.models.product import Product
 from app.models.inventory import Inventory
+from app.models.cart import Cart
+from app.models.cartItem import CartItem
 from app.core.config import settings
 
 target_metadata = Base.metadata

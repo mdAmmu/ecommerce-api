@@ -11,6 +11,7 @@ from app.api.auth import router as auth_router
 from app.api.users import router as users_router
 from app.api.category import router as category_router
 from app.api.products import router as products_router
+from app.api.cart import router as cart_router
 
 
 @asynccontextmanager
@@ -42,6 +43,7 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(category_router)
 app.include_router(products_router)
+app.include_router(cart_router)
 
 
 @app.get("/health")
