@@ -30,3 +30,15 @@ class PaginatedProductResponse(BaseModel):
     page: int
     total_pages: int
 
+class GetProductByIdRequest(BaseModel):
+    id: int
+
+class GetProductByIdResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    price: float
+    category_name: str
+    stock_quantity: int
+
+    model_config = ConfigDict(from_attributes=True)

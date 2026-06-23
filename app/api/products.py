@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
-from app.schemas.product import ProductCreate, ProductResponse, PaginatedProductResponse
+from app.schemas.product import ProductCreate, ProductResponse, PaginatedProductResponse, GetProductByIdResponse
 from app.services import product_service
 
 router = APIRouter(prefix="/products", tags=["Products"])
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/products", tags=["Products"])
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 def create_product(
     data: ProductCreate,
-    current_user=Depends(get_current_user),
+    current_user = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if current_user.role != "admin":
@@ -44,3 +44,8 @@ def get_all_products(
         search=search,
         sort_by=sort_by,
     )
+
+
+@router.get("/{id}", response_model=GetProductByIdResponse)
+def get_by_id(id: int, db: Session = Depends(get_db)):
+    return product_service.get_product_by_id(db, id)

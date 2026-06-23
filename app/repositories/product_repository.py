@@ -48,3 +48,7 @@ def get_all_filtered(
     products = db.execute(query).scalars().all()
 
     return products, total
+
+def get_by_id(db: Session, id: int) -> Product | None:
+    statement = select(Product).where(Product.id == id, Product.is_active == True)
+    return db.execute(statement).scalars().first()

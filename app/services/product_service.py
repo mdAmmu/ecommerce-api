@@ -102,3 +102,23 @@ def get_all_products(
         "page": page,
         "total_pages": total_pages,
     }
+
+def get_product_by_id(db: Session, id: int):
+    product = product_repository.get_by_id(db, id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+
+    category = category_repository.get_by_id(db, product.category_id)
+    inventory = inventory_repository.get_by_product_id(db, product.id)
+
+    return {
+        "id": product.id,
+        "name": product.name,
+        "description": product.description,
+        "price": product.price,
+        "category_name": category.name if category else "Unknown",
+        "stock_quantity": inventory.stock_quantity if inventory else 0,
+    }
