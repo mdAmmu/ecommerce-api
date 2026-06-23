@@ -153,3 +153,14 @@ def update_product(db: Session, id: int, data):
 
     product_repository.update_by_id(db, product, updates)
     return {"message": "Product updated successfully"}
+
+def delete_product(db: Session, id: int):
+    product = product_repository.get_by_id(db, id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+
+    product_repository.delete_by_id(db, product)
+    return {"message": "Product deleted successfully"}

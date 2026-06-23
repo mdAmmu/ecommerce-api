@@ -52,3 +52,9 @@ class ProductUpdateRequest(BaseModel):
 
 class ProductUpdateResponse(BaseModel):
     message: str
+
+class DeleteProductRequest(BaseModel):
+    id:int
+
+class DeleteProductResponse(BaseModel):
+    message:str

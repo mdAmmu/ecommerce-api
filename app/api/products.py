@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
-from app.schemas.product import ProductCreate, ProductResponse, PaginatedProductResponse, GetProductByIdResponse, ProductUpdateRequest, ProductUpdateResponse
+from app.schemas.product import ProductCreate, ProductResponse, PaginatedProductResponse, GetProductByIdResponse, ProductUpdateRequest, ProductUpdateResponse,DeleteProductResponse
 from app.services import product_service
 
 router = APIRouter(prefix="/products", tags=["Products"])
@@ -65,3 +65,17 @@ def update_product_by_id(
         )
 
     return product_service.update_product(db, id, data)
+
+@router.delete("/{id}",response_model=DeleteProductResponse)
+def delete_product_by_id(
+    id: int,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    return product_service.delete_product(db,id)

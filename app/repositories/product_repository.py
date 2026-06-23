@@ -59,3 +59,8 @@ def update_by_id(db: Session, product: Product, updates: dict) -> Product:
     db.commit()
     db.refresh(product)
     return product
+
+
+def delete_by_id(db: Session, product: Product):
+    product.is_active = False
+    db.commit()
