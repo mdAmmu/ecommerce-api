@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 
 class ProductCreate(BaseModel):
@@ -42,3 +43,12 @@ class GetProductByIdResponse(BaseModel):
     stock_quantity: int
 
     model_config = ConfigDict(from_attributes=True)
+
+class ProductUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    category_id: Optional[int] = None
+
+class ProductUpdateResponse(BaseModel):
+    message: str

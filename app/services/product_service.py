@@ -122,3 +122,34 @@ def get_product_by_id(db: Session, id: int):
         "category_name": category.name if category else "Unknown",
         "stock_quantity": inventory.stock_quantity if inventory else 0,
     }
+
+
+def update_product(db: Session, id: int, data):
+    product = product_repository.get_by_id(db, id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+
+    updates = {}
+    if data.name is not None:
+        updates["name"] = data.name
+    if data.description is not None:
+        updates["description"] = data.description
+    if data.price is not None:
+        updates["price"] = data.price
+    if data.category_id is not None:
+        category = category_repository.get_by_id(db, data.category_id)
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Category not found"
+            )
+        updates["category_id"] = data.category_id
+
+    if not updates:
+        return {"message": "Nothing to update"}
+
+    product_repository.update_by_id(db, product, updates)
+    return {"message": "Product updated successfully"}

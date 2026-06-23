@@ -52,3 +52,10 @@ def get_all_filtered(
 def get_by_id(db: Session, id: int) -> Product | None:
     statement = select(Product).where(Product.id == id, Product.is_active == True)
     return db.execute(statement).scalars().first()
+
+def update_by_id(db: Session, product: Product, updates: dict) -> Product:
+    for key, value in updates.items():
+        setattr(product, key, value)
+    db.commit()
+    db.refresh(product)
+    return product
