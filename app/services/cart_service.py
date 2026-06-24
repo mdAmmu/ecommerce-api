@@ -43,3 +43,35 @@ def add_item_to_cart(db: Session, user_id: int, data: AddCartItem):
             quantity=data.quantity,
         )
         return cart_repository.add_cart_item(db, cart_item)
+
+
+def cart_items(db: Session, user_id: int):
+    cart = cart_repository.get_cart_by_user_id(db, user_id)
+    if not cart:
+        return {"items": [], "item_count": 0, "cart_total": 0.0}
+
+    cart_item_list = cart_repository.get_all_cart_items(db, cart.id)
+    if not cart_item_list:
+        return {"items": [], "item_count": 0, "cart_total": 0.0}
+
+    items = []
+    cart_total = 0.0
+
+    for item in cart_item_list:
+        product = product_repository.get_by_id(db, item.product_id)
+        line_total = product.price * item.quantity
+        cart_total += line_total
+
+        items.append({
+            "product_name": product.name,
+            "price": product.price,
+            "quantity": item.quantity,
+            "line_total": line_total,
+        })
+
+    return {
+        "items": items,
+        "item_count": len(items),
+        "cart_total": cart_total,
+    }
+    

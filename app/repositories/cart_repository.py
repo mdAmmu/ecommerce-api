@@ -38,3 +38,8 @@ def update_cart_item_quantity(db: Session, cart_item: CartItem, quantity: int) -
     db.commit()
     db.refresh(cart_item)
     return cart_item
+
+
+def get_all_cart_items(db: Session, cart_id: int) -> list[CartItem]:
+    statement = select(CartItem).where(CartItem.cart_id == cart_id)
+    return db.execute(statement).scalars().all()

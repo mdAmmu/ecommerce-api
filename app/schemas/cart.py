@@ -23,3 +23,14 @@ class CartItemResponse(BaseModel):
     added_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class CartItemDetail(BaseModel):
+    product_name: str
+    price: float
+    quantity: int
+    line_total: float
+
+class CartResponse(BaseModel):
+    items: list[CartItemDetail]
+    item_count: int
+    cart_total: float
